@@ -1,0 +1,67 @@
+FUNCTION_BLOCK FB2301
+
+    TITLE = 'Filter'
+    // DATE : 2018-8-29
+    VERSION : '1.0'
+    // AUTHOR    : Li Wei
+    // Function  : Filter input signal
+    // Company   : SFAE FA OEM PMA
+
+    // KNOW_HOW_PROTECT
+
+    // Block Parameters
+    CONST
+        NUMBER_OF_DATA := 32; // Number of data to be filtered
+    END_CONST
+    
+    
+    VAR_INPUT 
+       Data_IN                 : REAL;   // Input Parameters
+    END_VAR
+    
+    VAR_OUTPUT
+        OUT_Filtered : REAL;    // Output Parameters
+    END_VAR
+    
+    VAR_TEMP
+        Loop_Count      : INT;  // Temporary Variable
+    END_VAR
+        
+    VAR
+        MAX_Data        : REAL; // MAX Value
+        MIN_Data        : REAL; // Min Value
+        Total           : REAL; // SUM Value
+        Total_Filtered  : REAL; // SUM Value w/o MAX_VALUE AND MIN_VALUE
+        
+        Data_Store: ARRAY[0..NUMBER_OF_DATA-1] OF REAL; // Static Variables
+    END_VAR
+    
+    BEGIN
+    
+        MAX_Data := Data_Store[0];  // Initialization
+        MIN_Data := Data_Store[0];
+        Total    := 0.0;
+        Total_Filtered := 0.0;
+     
+        FOR Loop_Count:= 0 TO (NUMBER_OF_DATA-2) BY 1 DO  // FIFO Stack
+            Data_Store[Loop_Count] := Data_Store[Loop_Count+1];
+        END_FOR;
+        
+            Data_Store[NUMBER_OF_DATA-1] := Data_IN;      // Newest value assigned to END of stack
+        
+        FOR Loop_Count:= 0 TO (NUMBER_OF_DATA-1) BY 1 DO
+            IF MAX_Data < Data_Store[Loop_Count] THEN
+                MAX_Data := Data_Store[Loop_Count];     // Find MAX
+            END_IF;
+            
+            IF MIN_Data > Data_Store[Loop_Count] THEN  // Find MIN
+                MIN_Data := Data_Store[Loop_Count]; 
+            END_IF;
+            
+            Total := Total + Data_Store[Loop_Count];  // Sum
+        END_FOR;
+        
+            Total_Filtered := Total - MAX_Data - MIN_Data;          // Sum W/O MAX&MIN
+            OUT_Filtered   := Total_Filtered / (NUMBER_OF_DATA-2);  // Mean value 
+                           
+END_FUNCTION_BLOCK
