@@ -1,0 +1,27 @@
+FUNCTION FC900 : REAL
+
+    TITLE = 'RandomReal'
+    // DATE : 2018-8-29
+    VERSION : '1.0'
+    // AUTHOR    : Li Wei
+    // Function  : Generate real random(0.0~1.0)
+    // Company   : SFAE FA OEM PMA
+
+   // KNOW_HOW_PROTECT
+    
+    VAR_INPUT
+        maxValue : REAL;  // real random less than maxValue
+    END_VAR
+        
+    VAR_IN_OUT
+        Seed : REAL;      // Seed for generating real random
+    END_VAR
+    
+    
+    BEGIN
+
+        Seed  := 125.0 *(Seed + 1.0);
+        Seed  := Seed - 8192.0 * TRUNC(Seed/8192.0);
+        FC900 := maxValue * (Seed + 0.5) / 8192.0;    // real random range: maxValue*[0,1] 
+                           
+END_FUNCTION
