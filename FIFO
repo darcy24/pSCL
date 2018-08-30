@@ -1,0 +1,56 @@
+FUNCTION FC100 : VOID
+   
+    TITLE = 'FIFO'
+    // DATE : 2018-8-29
+    VERSION : '1.0'
+    // AUTHOR    : Li Wei
+    // Function  : Move data forward or backward once detecting positive edge
+    // Company   : SFAE FA OEM PMA
+
+   // KNOW_HOW_PROTECT
+    
+   VAR_INPUT
+        MyDB       : BLOCK_DB;  // Data Block used to store the SHIFT data
+        Data2Shift : REAL;      // Data to be shift
+        DataLength : INT;       // How many data to be shift 
+        Pulse      : BOOL;      // Pulse signal input
+   END_VAR
+   
+   VAR_OUTPUT
+        LastData   : REAL;      // Last data of Data Block
+   END_VAR
+
+   VAR_TEMP
+        i         : INT;   // Loop index
+        tempPulse : BOOL;  // 
+   END_VAR
+
+ 
+   BEGIN 
+   
+           FC101(In_Var := Pulse, Pulse_pos_var := tempPulse);  // Detect positive edge
+           
+           (*
+           IF tempPulse THEN 
+               FOR i:= 0 TO (DataLength-2) BY 1 DO  // FIFO Stack
+                    MyDB.DD[i*4] := MyDB.DD[i*4+4];
+               END_FOR;
+               
+               MyDB.DD[(DataLength-1)*4] := REAL_TO_DWORD(Data2Shift);
+               //MyDB.DD[(DataLength-1)*4] := DINT_TO_DWORD(REAL_TO_DINT(Data2Shift));
+           END_IF;
+           *)
+           
+           IF tempPulse THEN 
+               FOR i:= (DataLength-2) TO 0 BY -1 DO  
+                    MyDB.DD[i*4+4] := MyDB.DD[i*4];
+               END_FOR;
+               
+               MyDB.DD[0] := REAL_TO_DWORD(Data2Shift);
+               //MyDB.DD0 := DINT_TO_DWORD(REAL_TO_DINT(Data2Shift));
+           END_IF;
+
+          LastData := DWORD_TO_REAL(MyDB.DD[(DataLength-1)*4]);  // Output the last data in DB
+          //LastData := DINT_TO_REAL(DWORD_TO_DINT(MyDB.DD[(DataLength-1)*4]));          
+           
+END_FUNCTION
