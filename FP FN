@@ -1,0 +1,131 @@
+FUNCTION_BLOCK FB_Pulse
+
+    TITLE = 'Pulse Positive/Negtive Edge detect'
+    // DATE : 2018-8-29
+    VERSION : '1.0'
+    // AUTHOR    : Li Wei
+    // Function  : Detect pulse positive/negtive edge
+    // Company   : SFAE FA OEM PMA
+
+   // KNOW_HOW_PROTECT
+
+
+        VAR_INPUT
+            In_Var:         BOOL;   //From this variable the pulse will be generated
+        END_VAR
+        
+        VAR_OUTPUT
+            Pulse_pos_Var:  BOOL;   //Output variable of the positive pulse
+            Pulse_neg_Var:  BOOL;   //Output variable of the negative pulse
+        END_VAR
+        
+        VAR                         //static variables of the instance db
+            Edge_flag_pos:  BOOL;   //Memory flag of the positive pulse
+            Edge_flag_neg:  BOOL;   //Memory flag of the negative pulse
+        END_VAR
+        
+        BEGIN
+
+            //get the positive pulse
+            Pulse_pos_Var   := In_Var AND NOT Edge_flag_pos;
+            Edge_flag_pos   := In_Var;
+             
+            //get the negative pulse
+            Pulse_neg_Var   := NOT In_Var AND Edge_flag_neg;
+            Edge_flag_neg   := In_Var;
+            
+END_FUNCTION_BLOCK
+
+
+DATA_BLOCK DB_Pulse 
+
+NAME    : DB_Pulse
+FAMILY  : SCL
+AUTHOR  : CS3_BSP
+VERSION : 1.0
+
+    //Instance DB for Function block FB_Pulse. Not necessary in case of using multi instances
+    FB_Pulse
+    
+    BEGIN
+
+END_DATA_BLOCK
+//---------------------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------------------
+//Functionality performed as FC
+//Advantage:    no instance data necessary
+
+FUNCTION FC_Pulse : VOID
+NAME    : FC_Pulse
+FAMILY  : SCL
+AUTHOR  : CS3_BSP
+VERSION : '1.0'
+
+        //Function to get a pulse from a variable in SCL
+        //Caution:
+        //When the variables Edge_flag_pos and Edge_flag_neg will be assigned:
+        //  - don´t use local variables
+        //  - don´t use this variables several times
+        
+        VAR_INPUT
+            In_Var:         BOOL;   //From this variable the pulse will be generated
+        END_VAR
+        
+        VAR_OUTPUT
+            Pulse_pos_Var:  BOOL;    //Output variable of the positive pulse
+            Pulse_neg_Var:  BOOL;    //Output variable of the negative pulse
+        END_VAR
+        
+        VAR_IN_OUT
+            Edge_flag_pos:  BOOL;   //Memory flag of the positive pulse. Assignment by call of the FC_Pulse 
+            Edge_flag_neg:  BOOL;   //Memory flag of the negative pulse. Assignment by call of the FC_Pulse
+        END_VAR
+        
+        BEGIN
+            //get the positive pulse
+            Pulse_pos_Var   := In_Var AND NOT Edge_flag_pos;
+            Edge_flag_pos   := In_Var;
+             
+            //get the negative pulse
+            Pulse_neg_Var   := NOT In_Var AND Edge_flag_neg;
+            Edge_flag_neg   := In_Var;
+    
+END_FUNCTION
+//---------------------------------------------------------------------------------------
+
+
+
+//---------------------------------------------------------------------------------------
+//Call of the function
+
+ORGANIZATION_BLOCK Cycle_Execution
+
+        VAR_TEMP
+          info : ARRAY[0..19] OF BYTE;
+        END_VAR
+        
+        
+        // Example, how to call the funtionality
+        BEGIN
+        
+        FC_Pulse(
+            In_Var          := Signal_1,
+            Pulse_pos_Var   := Pulse_pos_Signal_1,
+            Pulse_neg_Var   := Pulse_neg_Signal_1,
+            Edge_flag_pos   := EM_pos_Signal_1,
+            Edge_flag_neg   := EM_neg_Signal_1
+            );
+         
+         FB_Pulse.DB_Pulse(
+            In_Var         := Signal_2
+            );
+            Pulse_pos_Signal_2  := DB_Pulse.Pulse_pos_Var;
+            Pulse_neg_Signal_2  := DB_Pulse.Pulse_neg_Var;
+
+END_ORGANIZATION_BLOCK
+//---------------------------------------------------------------------------------------
+
+
