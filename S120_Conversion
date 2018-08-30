@@ -1,0 +1,75 @@
+FUNCTION FC2121 : void
+
+    TITLE = 'S120 conversion'
+    // DATE : 2018-8-29
+    VERSION : '1.0'
+    // AUTHOR    : Li Wei
+    // Function  : Convert S120 drive PZDs to actual engineering unit  
+    // Company   : SFAE FA OEM PMA
+
+    // KNOW_HOW_PROTECT
+
+    
+    // Block Parameters
+    VAR_INPUT
+        
+       Speed_IN     : WORD;
+       FreqHZ_Refer : REAL;
+       
+       Torque_IN    : WORD;
+       Torque_Refer : REAL;
+       
+       Current_IN    : WORD;
+       Current_Refer : REAL;
+       
+       Temperature_IN    : WORD;
+       Temperature_Refer : REAL;
+       
+    END_VAR
+    
+    VAR_TEMP
+        
+        tempSpeed       : REAL;
+        tempTorque      : REAL;
+        tempCurrent     : REAL;
+        tempTemperature : REAL;
+        
+    END_VAR
+    
+    
+    VAR_OUTPUT
+        
+       Act_FreqHZ : REAL;
+       
+       Act_Torque : REAL;
+       Per_Torque : REAL;
+       
+       Act_Current : REAL;
+       Per_Current : REAL;
+       
+       Act_Temperature : REAL;
+       Per_Temperature : REAL;
+     
+    END_VAR
+      
+    
+    BEGIN
+        
+        tempSpeed       := INT_TO_REAL(WORD_TO_INT(Speed_IN));
+        tempTorque      := INT_TO_REAL(WORD_TO_INT(Torque_IN));
+        tempCurrent     := INT_TO_REAL(WORD_TO_INT(Current_IN));
+        tempTemperature := INT_TO_REAL(WORD_TO_INT(Temperature_IN));
+        
+        Act_FreqHZ := (tempSpeed / 16384.0)* FreqHZ_Refer;
+        
+        Act_Torque := (tempTorque / 16384.0)* Torque_Refer;
+        Per_Torque := (tempTorque / 16384.0)* 100.0;
+        
+        Act_Current := (tempCurrent / 16384.0)* Current_Refer;
+        Per_Current := (tempCurrent / 16384.0)* 100.0;
+    
+        Act_Temperature := (tempTemperature / 16384.0)* Temperature_Refer;
+        Per_Temperature := (tempTemperature / 16384.0)* 100.0;
+
+
+END_FUNCTION
